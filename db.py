@@ -1,11 +1,12 @@
 ﻿import pymssql
 import traceback
+import config as setting
 class DB:
     def __init__(self):
-        self.server = '192.168.0.201'
-        self.db = 'VKM_Prod'
-        self.user = 'vaclog'
-        self.password  = 'hola$$123'
+        self.server = setting.config.db_host
+        self.db = setting.config.db_database
+        self.user = setting.config.db_user
+        self.password  = setting.config.db_password
         try:
             self.conn = pymssql.connect(self.server, 
                                    self.user, 
@@ -53,7 +54,8 @@ class DB:
                        and c.DunEtaVal1 != '' \
                        and ( Dir.LEnDir != '' or Dir.LEnDir != '#N/A') \
                        and ( EntNombre != '' OR EntNombre != '0')\
-                       and SentNroDsp not IN ( SELECT qua.pedido FROM Remito_PROD.dbo.quadmind_orders qua)\
+                       and SentNroDsp not IN ( SELECT qua.pedido \
+                                                 FROM Remito_PROD.dbo.quadmind_orders qua)\
                        order by SentNroDsp"
         
         #print(sentence)
@@ -62,6 +64,17 @@ class DB:
             row_data = cursor.fetchall()    
             return row_data  
 
+    def getParamsClient(self):
+        sentence=f"SELECT LogEntId as Entidad, Abreviatura\
+                     FROM Remito_PROD.dbo.parametros_clientes"
+        
+        #print(sentence)
+        with self.conn.cursor(as_dict=True) as cursor:
+            cursor.execute(sentence)  
+            row_data = cursor.fetchall()    
+            return row_data  
+        
+        
     def insertInQuadmind( self, pedido ):
         sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_orders ( [pedido], [fecha_proceso]) \
                    VALUES ( '{pedido}', GETDATE())"

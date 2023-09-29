@@ -2,11 +2,8 @@ import requests
 import db
 import smtp
 import traceback
+import config as setting
 
-
-url_base = "https://saas.quadminds.com/api/v2/"
-apiKey = "7d8d4723e289db708e2e3962630696166ed4a490"
-db = db.DB()
 
 def getPOIS(code):
     url = url_base + "pois/search?limit=1&offset=0&code=" + code
@@ -69,14 +66,10 @@ def addOrder(payload):
     #print(response.json())
 
 def getAbrCode(cuenta):
-    if(cuenta == '1032'):
-        return 'BR'
-    elif (cuenta == '13000'):
-        return 'OT'
-    elif ( cuenta == '13781'):
-        return 'BP'
-    elif (cuenta=='1034'):
-        return 'PE'
+    for elemento in abreviaturas:
+        if elemento['Entidad'] == int(cuenta):
+            return elemento['Abreviatura']
+    return None  # Devuelve None si no se encuentra la entidad
         
 def addArticulo( code, cuenta, descripcion):
     url = url_base + "products"
@@ -156,6 +149,9 @@ def main():
     
     print(f"Inicia Proceso")
     try:
+        url_base = setting.config.quadmind_url
+        apiKey = setting.config.quadmind_api_key
+        
         orders = db.getOrders()
         cliente_codigo_anterior = ''
         orden_anterior = ''
@@ -211,16 +207,20 @@ def main():
                 "productCode" : vkm_articulo,
                 "quantity": cantidad_preparada,
                 "weight": peso_kg
-            })    
+            })
+        print(f"fin proceso se procesaron {cantidad_ordenes}")    
     except Exception as inst :
         error_description = traceback.format_exc()
         print(error_description)
-        smtp.smtp.SendMail('tickets@itservices.vaclog.com','ERROR Procesando Quadminds', error_description,"" )
+        if setting.config.mail_send_flag == True:
+            smtp.smtp.SendMail('tickets@itservices.vaclog.com','ERROR Procesando Quadminds', error_description,"" )
     
-    print(f"fin proceso se procesaron {cantidad_ordenes}")
     
     
+    
+db = db.DB()
 
+abreviaturas = db.getParamsClient()
 main()
 
 # TODO
