@@ -1,1 +1,0 @@
-curl --request GET  --url 'https://saas.quadminds.com/api/v2/pois/search?limit=10'   --header 'accept: application/json'   --header 'x-saas-apikey: 7d8d4723e289db708e2e3962630696166ed4a490'
