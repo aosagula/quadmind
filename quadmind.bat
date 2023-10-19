@@ -12,4 +12,4 @@ echo %FILENAMELOG%
 ECHO OFF
 cd C:\Users\ValkUser\Documents\quadmind
 SET PY_EXE=python.exe
-%PY_EXE% C:\Users\ValkUser\Documents\quadmind\main.py >> %TEMP%\quadmind-%FILENAMELOG%.txt 2>&1 
+%PY_EXE% C:\Users\ValkUser\Documents\quadmind\main.py >> c:\LOGS\quadmind-%FILENAMELOG%.txt 2>&1 
