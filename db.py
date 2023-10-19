@@ -50,6 +50,9 @@ class DB:
                      where SEntEstEnt in ('PRE') \
                        and ArmIteCntC <> 0 \
                        and LogEntId not in (1032) \
+                       and LogEntId in ( 12716, 13781 )\
+                       and ententidc not in ( '13092', '14275', '14473'  )\
+                       and SentFecFin >= '2023-10-19' \
                        and (ententidc != '' or EntEntIdC is not null) \
                        and c.DunEtaVal1 != '' \
                        and ( Dir.LEnDir != '' or Dir.LEnDir != '#N/A') \

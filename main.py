@@ -3,6 +3,7 @@ import db
 import smtp
 import traceback
 import config as setting
+import datetime
 
 
 def getPOIS(code):
@@ -108,7 +109,7 @@ def handlePois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov)
                            loc, cp, prov)
         print (f"se agrega pois {cliente_codigo}-{cliente_nombre}")
    else:
-       if (customer['address'] != f"{dir} - {loc} ({cp}) - {prov}"):
+       if (customer['originalAddress'] != f"{dir} - {loc} ({cp}) - {prov}"):
            customer = AddPois( abr, cuenta, cliente_codigo, cliente_nombre, 
                                dir, loc, cp, prov)
            print (f"se cambio dirección {cliente_codigo}-{cliente_nombre}")
@@ -146,11 +147,10 @@ def AddPois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
     print(response.text)
 
 def main():
-    
-    print(f"Inicia Proceso")
+    dt = datetime.datetime.now()
+    print(f"Inicia Proceso {dt}")
     try:
-        url_base = setting.config.quadmind_url
-        apiKey = setting.config.quadmind_api_key
+        
         
         orders = db.getOrders()
         cliente_codigo_anterior = ''
@@ -170,8 +170,8 @@ def main():
             articulo_codigo = order['Articulo'].strip()
             articulo_nombre = order['Descripcion'].strip()
             cantidad_preparada = round(order['CantidadPreparada'])
-            volumen_m3 = round(order['VolumenMts3'], 2)
-            peso_kg = round(order['PesoKgr'], 2)   
+            volumen_m3 = int(round(order['VolumenMts3'], 0))
+            peso_kg = int(round(order['PesoKgr'], 0))   
             calle_numero = order['calle_numero'].strip()
             localidad_nombre = order['localidad_nombre'].strip()
             cod_postal = order['localidad_codigo_postal'].strip()
@@ -208,7 +208,13 @@ def main():
                 "quantity": cantidad_preparada,
                 "weight": peso_kg
             })
-        print(f"fin proceso se procesaron {cantidad_ordenes}")    
+        
+        if len(orders) > 0:
+            order_payload[0]["orderItems"].extend(order_items)
+            addOrder(order_payload)
+            print(f"fin del proceso orden {orden_anterior}")
+        dt = datetime.datetime.now()
+        print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")    
     except Exception as inst :
         error_description = traceback.format_exc()
         print(error_description)
@@ -219,7 +225,8 @@ def main():
     
     
 db = db.DB()
-
+url_base = setting.config.quadmind_url
+apiKey = setting.config.quadmind_api_key
 abreviaturas = db.getParamsClient()
 main()
 
