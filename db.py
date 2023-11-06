@@ -23,6 +23,7 @@ class DB:
     def getOrders(self):
         
         sentence=f"SELECT SentNroDsp 'Pedido', \
+                          SentDocNro 'Armado', \
                           LogEntId 'Cuenta',\
                           ententidc 'Cliente', \
                           EntNombre 'Nombre', \
@@ -51,15 +52,15 @@ class DB:
                        and ArmIteCntC <> 0 \
                        and LogEntId not in (1032) \
                        and LogEntId in ( 12716, 13781 )\
-                       and ententidc not in ( '13092', '14275', '14473'  )\
-                       and SentFecFin >= '2023-10-19' \
+                       and f.entid not in ( '13092', '14275', '14473' , '14328' )\
+                       and SentFecFin >= '2023-11-02' \
                        and (ententidc != '' or EntEntIdC is not null) \
                        and c.DunEtaVal1 != '' \
                        and ( Dir.LEnDir != '' or Dir.LEnDir != '#N/A') \
                        and ( EntNombre != '' OR EntNombre != '0')\
-                       and SentNroDsp not IN ( SELECT qua.pedido \
+                       and SentDocNro not IN ( SELECT qua.armado \
                                                  FROM Remito_PROD.dbo.quadmind_orders qua)\
-                       order by SentNroDsp"
+                       order by SentDocNro"
         
         #print(sentence)
         with self.conn.cursor(as_dict=True) as cursor:
@@ -78,16 +79,31 @@ class DB:
             return row_data  
         
         
-    def insertInQuadmind( self, pedido ):
-        sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_orders ( [pedido], [fecha_proceso]) \
-                   VALUES ( '{pedido}', GETDATE())"
+    def insertInQuadmind( self, pedido, armado, order_id ):
+        sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_orders ( [pedido], [fecha_proceso], [armado], [order_id]) \
+                   VALUES ( '{pedido}', GETDATE(), {armado}, {order_id})"
        
         with self.conn.cursor(as_dict=True) as cursor:
             cursor.execute(sentence) 
             
         self.conn.commit()
-        print(f"Pedido {pedido} INSERTADO en tabla Quadmind_orders")
+        print(f"Pedido {pedido} Orden_id {order_id} INSERTADO en tabla Quadmind_orders")
 
+    def updateOrderStatus( self, order_id, status, status_datetime, pedido ):
+        sentence=f"update Remito_PROD.dbo.quadmind_orders SET\
+                    estado = '{status}', \
+                    fecha_estado = '{status_datetime}'\
+                    WHERE order_id = {order_id}\
+                    and fecha_estado is null"
+       
+        with self.conn.cursor(as_dict=True) as cursor:
+            cursor.execute(sentence) 
+            
+        self.conn.commit()
+        print(f"Pedido {pedido} Armado {armado} Orden_id {order_id} ACTUALIZADO en tabla Quadmind_orders")
+
+        #TODO AGREGAR ARMADO AL INSERT, Tambien Status, FEcha de Entrega
+        
             
         #print (sentence)
         

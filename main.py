@@ -50,7 +50,7 @@ def getArticulo( code ):
     else:
         return None
 
-def addOrder(payload):
+def addOrder(payload, armado):
     
     url = url_base + "orders"
     
@@ -63,7 +63,10 @@ def addOrder(payload):
     response = requests.post(url, json=payload, headers=headers)
 
 
-    db.insertInQuadmind(payload[0]['code'])
+    if response.status_code == 200:
+        if len(response.json()['meta']['errors']) == 0:
+            order_id = response.json()['data'][0]['_id']
+            db.insertInQuadmind(payload[0]['code'], armado, order_id)
     #print(response.json())
 
 def getAbrCode(cuenta):
@@ -160,6 +163,7 @@ def main():
         order_items = []
         order_payload = []
         for idx, order in enumerate(orders):
+            armado = int(order['Armado'])
             pedido = order['Pedido'].strip()
             cuenta = str(order['Cuenta'])
             abr_cuenta = getAbrCode(cuenta)
@@ -181,7 +185,7 @@ def main():
                 print(f"Procesando Orden: {pedido}")
                 if (add_order_flag):
                     order_payload[0]["orderItems"].extend(order_items)
-                    addOrder(order_payload)
+                    addOrder(order_payload, armado)
                     print(f"fin del proceso orden {orden_anterior}")
                     pass
                 add_order_flag = True
