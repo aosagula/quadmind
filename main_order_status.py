@@ -43,14 +43,14 @@ def main():
         orders = getOrders(from_date, to_date)
         
         delivered_orders = filterDelivered(orders)
-        
+        cantidad_ordenes = 0
         for do in delivered_orders:
             status = do['orderStatus']['description']
             status_date = do['orderStatus']['photos'][0]['timestamp']
             order_id = do['_id']
             pedido = do['code']
             db.updateOrderStatus(order_id, status, status_date, pedido)
-        
+            cantidad_ordenes += 1 
         dt = datetime.now()
         print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")  
     except Exception as inst :
