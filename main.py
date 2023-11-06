@@ -215,7 +215,7 @@ def main():
         
         if len(orders) > 0:
             order_payload[0]["orderItems"].extend(order_items)
-            addOrder(order_payload)
+            addOrder(order_payload, armado)
             print(f"fin del proceso orden {orden_anterior}")
         dt = datetime.datetime.now()
         print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")    
