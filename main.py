@@ -112,7 +112,8 @@ def handlePois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov)
                            loc, cp, prov)
         print (f"se agrega pois {cliente_codigo}-{cliente_nombre}")
    else:
-       if (customer['originalAddress'] != f"{dir} - {loc} ({cp}) - {prov}"):
+       
+       if (customer['originalAddress'] != f"{dir} - {loc} ({cp}) - {prov}" and dir != 'VACLOG' and dir != 'VAC LOG'):
            customer = AddPois( abr, cuenta, cliente_codigo, cliente_nombre, 
                                dir, loc, cp, prov)
            print (f"se cambio dirección {cliente_codigo}-{cliente_nombre}")
@@ -144,6 +145,8 @@ def AddPois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
 
     response = requests.post(url, json=payload, headers=headers)
     if (response.status_code == 200):
+        # if ( response.json()['meta']['errors'][0]['error'] == 2020):
+        #     return response.json()
         return response.json()['data'][0]
     else:
         return None

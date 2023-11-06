@@ -51,7 +51,8 @@ def main():
             pedido = do['code']
             db.updateOrderStatus(order_id, status, status_date, pedido)
         
-        pass
+        dt = datetime.datetime.now()
+        print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")  
     except Exception as inst :
         error_description = traceback.format_exc()
         print(error_description)
