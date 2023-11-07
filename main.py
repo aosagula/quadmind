@@ -161,6 +161,7 @@ def main():
         orders = db.getOrders()
         cliente_codigo_anterior = ''
         orden_anterior = ''
+        armado_anterior= ''
         cantidad_ordenes = 0
         add_order_flag = False
         order_items = []
@@ -188,7 +189,7 @@ def main():
                 print(f"Procesando Orden: {pedido}")
                 if (add_order_flag):
                     order_payload[0]["orderItems"].extend(order_items)
-                    addOrder(order_payload, armado)
+                    addOrder(order_payload, armado_anterior)
                     print(f"fin del proceso orden {orden_anterior}")
                     pass
                 add_order_flag = True
@@ -207,6 +208,7 @@ def main():
                     "orderItems": []
                 }]
                 orden_anterior = pedido
+                armado_anterior = armado
             
             item = handleArticulo( abr_cuenta, cuenta, vkm_articulo, articulo_nombre)
             order_items.append ({
@@ -218,7 +220,7 @@ def main():
         
         if len(orders) > 0:
             order_payload[0]["orderItems"].extend(order_items)
-            addOrder(order_payload, armado)
+            addOrder(order_payload, armado_anterior)
             print(f"fin del proceso orden {orden_anterior}")
         dt = datetime.datetime.now()
         print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")    
