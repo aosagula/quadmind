@@ -5,7 +5,15 @@ import traceback
 import config as setting
 import datetime
 from datetime import datetime, timedelta
+import pytz
 
+def convertir_gmt_a_argentina(gmt):
+      # Crear un objeto datetime a partir de la cadena, asumiendo que está en la zona horaria UTC
+  dt_utc = datetime.fromisoformat(gmt).replace(tzinfo=pytz.utc)
+  # Crear un objeto datetime con la zona horaria de Argentina (GMT-3)
+  dt_arg = dt_utc.astimezone(pytz.timezone("America/Argentina/Buenos_Aires"))
+  # Devolver el objeto datetime con la zona horaria de Argentina
+  return dt_arg
 
 def getOrders(from_date, to_date):
     url = f"{url_base}orders/search?limit=100&offset=0&from={from_date}&to={to_date}"
@@ -44,15 +52,21 @@ def main():
         
         delivered_orders = filterDelivered(orders)
         cantidad_ordenes = 0
+        cantidad_ordenes_salteadas = 0
         for do in delivered_orders:
             status = do['orderStatus']['description']
-            status_date = do['orderStatus']['photos'][0]['timestamp']
-            order_id = do['_id']
-            pedido = do['code']
-            db.updateOrderStatus(order_id, status, status_date, pedido)
-            cantidad_ordenes += 1 
+            if 'photos' in do['orderStatus']:
+                status_date = do['orderStatus']['photos'][0]['timestamp']
+                photo_url = do['orderStatus']['photos'][0]['fullUrl']
+                #status_date_arg = convertir_gmt_a_argentina(status_date)
+                order_id = do['_id']
+                pedido = do['code']
+                db.updateOrderStatus(order_id, status, status_date, pedido, photo_url)
+                cantidad_ordenes += 1
+            else:
+                cantidad_ordenes_salteadas += 1 
         dt = datetime.now()
-        print(f"fin proceso se procesaron {cantidad_ordenes} {dt}")  
+        print(f"fin proceso se procesaron {cantidad_ordenes} se saltearon {cantidad_ordenes_salteadas} {dt}")  
     except Exception as inst :
         error_description = traceback.format_exc()
         print(error_description)

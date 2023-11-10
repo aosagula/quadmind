@@ -89,10 +89,11 @@ class DB:
         self.conn.commit()
         print(f"Pedido {pedido} Orden_id {order_id} INSERTADO en tabla Quadmind_orders")
 
-    def updateOrderStatus( self, order_id, status, status_datetime, pedido ):
+    def updateOrderStatus( self, order_id, status, status_datetime, pedido, photo_url ):
         sentence=f"update Remito_PROD.dbo.quadmind_orders SET\
                     estado = '{status}', \
-                    fecha_estado = '{status_datetime}'\
+                    fecha_estado = '{status_datetime}',\
+                    photo_url = '{photo_url}'\
                     WHERE order_id = {order_id}\
                     and fecha_estado is null"
        
@@ -100,7 +101,7 @@ class DB:
             cursor.execute(sentence) 
             
         self.conn.commit()
-        print(f"Pedido {pedido} Armado {armado} Orden_id {order_id} ACTUALIZADO en tabla Quadmind_orders")
+        print(f"Pedido {pedido} Orden_id {order_id} ACTUALIZADO en tabla Quadmind_orders")
 
         #TODO AGREGAR ARMADO AL INSERT, Tambien Status, FEcha de Entrega
         
