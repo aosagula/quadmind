@@ -90,11 +90,14 @@ class DB:
         print(f"Pedido {pedido} Orden_id {order_id} INSERTADO en tabla Quadmind_orders")
 
     def updateOrderStatus( self, order_id, status, status_datetime, pedido, photo_url ):
+        date_fmt= status_datetime.strftime('%Y-%m-%d %H:%M:%S')
         sentence=f"update Remito_PROD.dbo.quadmind_orders SET\
-                    estado = '{status}', \
-                    fecha_estado = '{status_datetime}',\
-                    photo_url = '{photo_url}'\
-                    WHERE order_id = {order_id}\
+                        estado = '{status}', \
+                        fecha_estado = '{date_fmt}',\
+                        photo_url = '{photo_url}',\
+                        order_id = {order_id},\
+                        updated_at = GETDATE()\
+                    WHERE pedido = '{pedido}'\
                     and fecha_estado is null"
        
         with self.conn.cursor(as_dict=True) as cursor:
