@@ -112,9 +112,9 @@ def handlePois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov)
                            loc, cp, prov)
         print (f"se agrega pois {cliente_codigo}-{cliente_nombre}")
    else:
-       
+       #"4 de Febrero 3640, San Andres, Provincia de Buenos Aires, Argentina",
        if (customer['originalAddress'] != f"{dir} - {loc} ({cp}) - {prov}" and dir != 'VACLOG' and dir != 'VAC LOG'):
-           customer = AddPois( abr, cuenta, cliente_codigo, cliente_nombre, 
+           customer = updatePois( abr, cuenta, cliente_codigo, cliente_nombre, 
                                dir, loc, cp, prov)
            print (f"se cambio dirección {cliente_codigo}-{cliente_nombre}")
    return customer
@@ -152,6 +152,38 @@ def AddPois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
         return None
     print(response.text)
 
+def updatePois(abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
+    url = url_base + "pois/" + abr + cliente_codigo
+
+    payload = [
+        {
+            "address": {
+                "street": dir,
+                
+                "locality": f"{loc} ({cp})",
+                "state": prov,
+                "country": "Argentina"
+            },
+           
+            "name": cliente_nombre,
+            "grouping": cuenta,
+            "longAddress": f"{dir} - {loc} ({cp}) - {prov}"
+        }
+    ]
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "x-saas-apikey": apiKey
+    }
+
+    response = requests.put(url, json=payload, headers=headers)
+    if (response.status_code == 200):
+        # if ( response.json()['meta']['errors'][0]['error'] == 2020):
+        #     return response.json()
+        return response.json()['data']
+    else:
+        return None
+    print(response.text)
 def main():
     dt = datetime.datetime.now()
     print(f"Inicia Proceso {dt}")
