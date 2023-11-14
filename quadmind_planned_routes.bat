@@ -13,3 +13,9 @@ ECHO OFF
 cd C:\Users\ValkUser\Documents\quadmind
 SET PY_EXE=python.exe
 %PY_EXE% C:\Users\ValkUser\Documents\quadmind\main_planned_routes.py >> c:\LOGS\quadmind-planned-routes-%FILENAMELOG%.txt 2>&1 
+
+
+
+set RUN=C:\Users\ValkUser\Downloads\pdi-ce-8.0.0.0-28\data-integration
+set FILE_RUN=C:\Users\ValkUser\Downloads\pdi-ce-8.0.0.0-28\data-integration\src\Deposito\quadmind
+%RUN%\Kitchen.bat /file "%FILE_RUN%\main_status.kjb"  >> c:\LOGS\quadmind-planned-routes-%FILENAMELOG%.txt 2>&1 
