@@ -64,9 +64,17 @@ def addOrder(payload, armado):
 
 
     if response.status_code == 200:
+        
+            
         if len(response.json()['meta']['errors']) == 0:
+           
             order_id = response.json()['data'][0]['_id']
             db.insertInQuadmind(payload[0]['code'], armado, order_id)
+        elif response.json()['meta']['errors'][0]['error'] == 2020:   
+            order_id = int(getOrder(payload[0]['code']))
+            db.insertInQuadmind(payload[0]['code'], armado, order_id)
+        
+        
     #print(response.json())
 
 def getAbrCode(cuenta):
@@ -151,6 +159,24 @@ def AddPois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
     else:
         return None
     print(response.text)
+    
+    
+    
+def getOrder(code):
+    
+    
+
+    url = url_base + f"orders/search?limit=100&offset=0&code={code}"
+
+    headers = {
+        "accept": "application/json",
+        "x-saas-apikey": apiKey
+    }
+
+    response = requests.get(url, headers=headers)
+
+    return response.json()['data'][0]['_id']
+
 
 def updatePois(abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
     url = url_base + "pois/" + abr + cliente_codigo

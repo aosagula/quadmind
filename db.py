@@ -89,6 +89,28 @@ class DB:
         self.conn.commit()
         print(f"Pedido {pedido} Orden_id {order_id} INSERTADO en tabla Quadmind_orders")
 
+    def insertPlannedOrder( self, op):
+        
+        sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_planned_orders ( \
+                        [fecha_proceso], [cuenta_id], [client_id],\
+                        [name] , [fecha_plan], [updated_at], \
+                        [pedido], [order_id] ) \
+                   VALUES ( GETDATE(), \
+                        {op['cuenta_id']},\
+                        '{op['client_id']}', \
+                        '{op['name']}',\
+                        '{op['fecha_plan']}',\
+                        GETDATE(), \
+                        '{op['pedido']}',\
+                        {op['order_id']})"
+       
+        #print (sentence)
+        with self.conn.cursor(as_dict=True) as cursor:
+            cursor.execute(sentence) 
+            
+        self.conn.commit()
+        
+        
     def updateOrderStatus( self, order_id, status, status_datetime, pedido, photo_url ):
         date_fmt= status_datetime.strftime('%Y-%m-%d %H:%M:%S')
         sentence=f"update Remito_PROD.dbo.quadmind_orders SET\

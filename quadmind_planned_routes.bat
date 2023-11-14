@@ -12,4 +12,4 @@ echo %FILENAMELOG%
 ECHO OFF
 cd C:\Users\ValkUser\Documents\quadmind
 SET PY_EXE=python.exe
-%PY_EXE% C:\Users\ValkUser\Documents\quadmind\main_routes_status.py >> c:\LOGS\quadmind-status-%FILENAMELOG%.txt 2>&1 
+%PY_EXE% C:\Users\ValkUser\Documents\quadmind\main_planned_routes.py >> c:\LOGS\quadmind-planned-routes-%FILENAMELOG%.txt 2>&1 
