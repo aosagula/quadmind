@@ -20,3 +20,9 @@ gmt = "2023-11-08T13:51:06.000Z" # Date and time GMT given by the user
 
 arg = convert_gmt_to_argentina(gmt) # Date and time in Argentina
 print(f"The date and time {gmt} in GMT corresponds to {arg} in Argentina.") # Print the result
+
+
+def eliminate_lf_cr(input_string):
+    # Replace LF and CR characters with an empty string
+    result_string = input_string.replace('\n', '').replace('\r', '')
+    return result_string

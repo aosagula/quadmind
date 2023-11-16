@@ -7,22 +7,10 @@ import datetime
 from datetime import datetime, timedelta
 import pytz
 import util
+import sys
 
 
-def getConsolidatedRoutes(from_date, to_date):
-    url = f"{url_base}consolidated-routes/search?limit=100&offset=0&from={from_date}&to={to_date}"
-    #url = "https://saas.quadminds.com/api/v2/orders/search?limit=100&offset=0&from=2023-09-18&to=2023-09-19"
-    headers = {
-        "accept": "application/json",
-        "x-saas-apikey": apiKey
-    }
-
-    response = requests.get(url, headers=headers)
-   
-    if (response.status_code == 200):
-        return response.json()['data']
-    else:
-        return None
+import quadmind
     
 def filterWaypoints(consolidated):
     filtered = []
@@ -52,7 +40,8 @@ def main():
         some_days_ago = current_datetime - timedelta(days=6)
         
         from_date = some_days_ago.strftime('%Y-%m-%d')
-        orders = getConsolidatedRoutes(from_date, to_date)
+        orders = quadmind.getConsolidatedRoutes(from_date, to_date)
+        #orders = getConsolidatedRoutes('2023-11-06', '2023-11-09')
         
         waypoints = filterWaypoints(orders)
         
@@ -69,11 +58,12 @@ def main():
                    
                     photo_url = do['orderStatus']['photos'][0]['fullUrl']
                     #status_date_arg = convertir_gmt_a_argentina(status_date)
-                    
-                    db.updateOrderStatus(order_id, status, status_date, pedido, photo_url)
-                    cantidad_ordenes += 1
                 else:
-                    cantidad_ordenes_salteadas += 1 
+                    photo_url = ''    
+                    #
+                    
+                cantidad_ordenes += 1
+                db.updateOrderStatus(order_id, status, status_date, pedido, photo_url)
         dt = datetime.now()
         print(f"fin proceso se procesaron {cantidad_ordenes} se saltearon {cantidad_ordenes_salteadas} {dt}")  
     except Exception as inst :
