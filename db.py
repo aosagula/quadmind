@@ -52,7 +52,7 @@ class DB:
                        and ArmIteCntC <> 0 \
                        and LogEntId not in (1032) \
                        and LogEntId in ( 12716, 13781, 13380 )\
-                       and f.entid not in ( '13092', '14275', '14473' , '14328' )\
+                       and f.entid not in ( '13092', '14275', '14473' , '14328', '18200' )\
                        and SentFecFin >= '2023-11-06' \
                        and (ententidc != '' or EntEntIdC is not null) \
                        and c.DunEtaVal1 != '' \
@@ -123,7 +123,7 @@ class DB:
                     and fecha_estado is null"
        
         with self.conn.cursor(as_dict=True) as cursor:
-            cursor.execute(sentence) 
+            result = cursor.execute(sentence) 
             
         self.conn.commit()
         print(f"Pedido {pedido} Orden_id {order_id} ACTUALIZADO en tabla Quadmind_orders")
