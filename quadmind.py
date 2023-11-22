@@ -1,5 +1,8 @@
 import requests
 import config as setting
+import urllib.parse
+
+
 url_base = setting.config.quadmind_url
 apiKey = setting.config.quadmind_api_key
 
@@ -65,3 +68,21 @@ def getPoi( poiId):
         return response.json()['data'][0]
     else:
         return None
+    
+def getOrder(code):
+    
+    # params = {'code': code}
+    # encode_code = urllib.urlencode(params)
+    
+    encode_code = urllib.parse.quote_plus(f'{code}')
+
+    url = url_base + f"orders/search?limit=100&offset=0&code={encode_code}"
+
+    headers = {
+        "accept": "application/json",
+        "x-saas-apikey": apiKey
+    }
+
+    response = requests.get(url, headers=headers)
+
+    return response.json()['data'][0]['_id']

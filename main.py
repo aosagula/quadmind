@@ -5,6 +5,8 @@ import traceback
 import config as setting
 import datetime
 
+import quadmind
+
 
 def getPOIS(code):
     url = url_base + "pois/search?limit=1&offset=0&code=" + code
@@ -71,7 +73,7 @@ def addOrder(payload, armado):
             order_id = response.json()['data'][0]['_id']
             db.insertInQuadmind(payload[0]['code'], armado, order_id)
         elif response.json()['meta']['errors'][0]['error'] == 2020:   
-            order_id = int(getOrder(payload[0]['code']))
+            order_id = int(quadmind.getOrder(payload[0]['code']))
             db.insertInQuadmind(payload[0]['code'], armado, order_id)
         
         
@@ -162,20 +164,7 @@ def AddPois( abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
     
     
     
-def getOrder(code):
-    
-    
 
-    url = url_base + f"orders/search?limit=100&offset=0&code={code}"
-
-    headers = {
-        "accept": "application/json",
-        "x-saas-apikey": apiKey
-    }
-
-    response = requests.get(url, headers=headers)
-
-    return response.json()['data'][0]['_id']
 
 
 def updatePois(abr, cuenta, cliente_codigo, cliente_nombre, dir, loc, cp, prov):
