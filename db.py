@@ -90,20 +90,47 @@ class DB:
         print(f"Pedido {pedido} Orden_id {order_id} INSERTADO en tabla Quadmind_orders")
 
     def insertPlannedOrder( self, op):
+        fecha_estado = op['fecha_estado']
         
-        sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_planned_orders ( \
-                        [fecha_proceso], [cuenta_id], [client_id],\
-                        [name] , [fecha_plan], [updated_at], \
-                        [pedido], [order_id] ) \
-                   VALUES ( GETDATE(), \
-                        {op['cuenta_id']},\
-                        '{op['client_id']}', \
-                        '{op['name']}',\
-                        '{op['fecha_plan']}',\
-                        GETDATE(), \
-                        '{op['pedido']}',\
-                        {op['order_id']})"
-       
+        if fecha_estado != '':
+            sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_planned_orders ( \
+                            [fecha_proceso], [cuenta_id], [client_id],\
+                            [name] , [fecha_plan], [updated_at], \
+                            [pedido], [order_id], \
+                            [fecha_estado], \
+                            [estado],\
+                            [direccion]) \
+                    VALUES ( GETDATE(), \
+                            {op['cuenta_id']},\
+                            '{op['client_id']}', \
+                            '{op['name']}',\
+                            '{op['fecha_plan']}',\
+                            GETDATE(), \
+                            '{op['pedido']}',\
+                            {op['order_id']},\
+                            '{fecha_estado}',\
+                            '{op['estado']}',\
+                            '{op['direccion']}')"
+        else:
+            sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_planned_orders ( \
+                            [fecha_proceso], [cuenta_id], [client_id],\
+                            [name] , [fecha_plan], [updated_at], \
+                            [pedido], [order_id], \
+                            [fecha_estado], \
+                            [estado],\
+                            [direccion]) \
+                    VALUES ( GETDATE(), \
+                            {op['cuenta_id']},\
+                            '{op['client_id']}', \
+                            '{op['name']}',\
+                            '{op['fecha_plan']}',\
+                            GETDATE(), \
+                            '{op['pedido']}',\
+                            {op['order_id']},\
+                            NULL,\
+                            '{op['estado']}',\
+                            '{op['direccion']}')"
+            
         #print (sentence)
         with self.conn.cursor(as_dict=True) as cursor:
             cursor.execute(sentence) 

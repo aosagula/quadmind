@@ -7,22 +7,9 @@ import datetime
 from datetime import datetime, timedelta
 import pytz
 import util
+import quadmind
 
 
-def getConsolidatedRoutes(from_date, to_date):
-    url = f"{url_base}consolidated-routes/search?limit=100&offset=0&from={from_date}&to={to_date}"
-    #url = "https://saas.quadminds.com/api/v2/orders/search?limit=100&offset=0&from=2023-09-18&to=2023-09-19"
-    headers = {
-        "accept": "application/json",
-        "x-saas-apikey": apiKey
-    }
-
-    response = requests.get(url, headers=headers)
-   
-    if (response.status_code == 200):
-        return response.json()['data']
-    else:
-        return None
     
 def filterWaypoints(consolidated):
     filtered = []
@@ -44,19 +31,7 @@ def filterPlannedOrders(waypoints):
                     
     return filtered
 
-def getPoi( poiId):
-    url = f"{url_base}pois?limit=100&offset=0&_id={poiId}"
-    headers = {
-        "accept": "application/json",
-        "x-saas-apikey": apiKey
-    }
 
-    response = requests.get(url, headers=headers)
-   
-    if (response.status_code == 200):
-        return response.json()['data'][0]
-    else:
-        return None
 def getClientByAbbr( abreviatura ):
     for ab in abreviaturas:
         if ab['Abreviatura'] == abreviatura:
@@ -75,41 +50,82 @@ def main():
     try:
         # Get the current date and time
         current_datetime = datetime.now()
-        to_date = current_datetime.strftime('%Y-%m-%d')
+       
         # Calculate the date and time 7 days ago
         some_days_ago = current_datetime - timedelta(days=6)
         
-        from_date = some_days_ago.strftime('%Y-%m-%d')
-        orders = getConsolidatedRoutes(from_date, to_date)
+        two_days_ago = current_datetime - timedelta(days=2)
         
-        waypoints = filterWaypoints(orders)
+        next_four_days = current_datetime + timedelta(days=4)
         
-        planned_waipoints = filterPlannedOrders(waypoints)
+        from_date = two_days_ago.strftime('%Y-%m-%d')
+        
+        to_date = next_four_days.strftime('%Y-%m-%d')
+        # orders = quadmind.getConsolidatedRoutes(from_date, to_date)
+        # orders = quadmind.getConsolidatedRoutes(from_date, to_date)
+        routes = quadmind.getRoutes(from_date, to_date)
+        #routes = quadmind.getRoutes('2023-11-14', '2023-11-20')
+        print(f"ruta_id;fecha_plan; waypoint;estado;fecha_estado;cliente;direccion;order;pedido;cuenta")
+        
         cantidad_ordenes = 0
-        cantidad_ordenes_salteadas = 0
-        for pw in planned_waipoints:
-            for activity in pw['activities']:
-                if activity['type'] == 'delivery':
-                    for op in pw['activities'][0]['orders']:
+        for r in routes:
+            consolidated_route = quadmind.getConsolidatedRoute( r['_id'])
+            for w in consolidated_route[0]['waypoints']:
+                poi = quadmind.getPoi(w['poiId'])
+                
+                   
+                cliente  = poi['name']
+                address = poi['address']
+                valkimia_entity_struct = getValkimiaEntity(poi)
+                if 'status' in w:
+                    estado = w['status']['description']
+                    fecha_estado = util.convert_gmt_to_argentina(w['status']['certifiedAt'])
+                else:
+                    estado = ''
+                    fecha_estado = ''
+                if 'activities' in w:
+                    for act in w['activities']:
+                        if 'delivery' in act['type']:
+                            for o in act['orders']:
+                                
+                                print(f"{r['_id']};{r['startDate']};{w['_id']};{estado};{fecha_estado};{util.eliminate_lf_cr(cliente)};{util.eliminate_lf_cr(address)};{o['_id']};{o['code']};{valkimia_entity_struct['client_id']}")
+                                
+                                if fecha_estado != '':
+                                    # if r['_id'] == 44415196:
+                                    #     fecha_estado_fmt = util.convert_to_ba_datetime(fecha_estado)
+                                    # else:
+                                    fecha_estado_fmt = util.convert_to_ba_datetime(fecha_estado)
+                                else:
+                                    fecha_estado_fmt = ''
+                                
+                               
+                                    
+                                cuenta_id = valkimia_entity_struct['client_id']
+                                client_id = valkimia_entity_struct['entidad_id']
+                                
+                                planned_order = {
+                                                "order_id": o['_id'],
+                                                "cuenta_id": cuenta_id,
+                                                "client_id": client_id,
+                                                "name": poi['name'],
+                                                "pedido": o['code'],
+                                                "fecha_plan": r['startDate'],
+                                                "fecha_estado": fecha_estado_fmt,
+                                                "estado": estado,
+                                                "direccion": address
+                                                }
+                                if cuenta_id == None:
+                                    print('SALTEADO NO RECONOCE CLIENTE')
+                                else:
+                                    db.insertPlannedOrder(planned_order)
                         
-                        poiData = getPoi(op['poiId'])
-                        valkimia_entity_struct = getValkimiaEntity(poiData)
-                        
-                        planned_order = {
-                            "order_id": op['_id'],
-                            "cuenta_id": valkimia_entity_struct['client_id'],
-                            "client_id": valkimia_entity_struct['entidad_id'],
-                            "name": poiData['name'],
-                            "pedido": op['code'],
-                            "fecha_plan": pw['scheduledDate']
-                            }
-                        db.insertPlannedOrder(planned_order)
-                        
-                        print (f"Sin vehiculo: {op['code']} {op['date']} {op['poiId']} {pw['scheduledDate']} {poiData['name'] } {valkimia_entity_struct['client_id']}" )
-                        cantidad_ordenes += 1
+                        #print (f"Sin vehiculo: {op['code']} {op['date']} {op['poiId']} {pw['scheduledDate']} {poiData['name'] } {valkimia_entity_struct['client_id']}" )
+                                cantidad_ordenes += 1
+        
+        
                         
         dt = datetime.now()
-        print(f"fin proceso se procesaron {cantidad_ordenes} se saltearon {cantidad_ordenes_salteadas} {dt}")  
+        print(f"fin proceso se procesaron {cantidad_ordenes}  {dt}")  
     except Exception as inst :
         error_description = traceback.format_exc()
         print(error_description)
