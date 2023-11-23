@@ -51,8 +51,8 @@ class DB:
                      where SEntEstEnt in ('PRE') \
                        and ArmIteCntC <> 0 \
                        and LogEntId not in (1032) \
-                       and LogEntId in ( 12716, 13781, 13380 )\
-                       and f.entid not in ( '13092', '14275', '14473' , '14328', '18200' )\
+                       and LogEntId in ( 12716, 13781, 13380, 18200 )\
+                       and f.entid not in ( '13092', '14275', '14473' , '14328')\
                        and SentFecFin >= '2023-11-06' \
                        and (ententidc != '' or EntEntIdC is not null) \
                        and c.DunEtaVal1 != '' \
