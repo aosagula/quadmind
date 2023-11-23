@@ -89,7 +89,10 @@ def main():
                             for o in act['orders']:
                                 
                                 print(f"{r['_id']};{r['startDate']};{w['_id']};{estado};{fecha_estado};{util.eliminate_lf_cr(cliente)};{util.eliminate_lf_cr(address)};{o['_id']};{o['code']};{valkimia_entity_struct['client_id']}")
-                                
+                                if 'orderStatus' in o and 'photos' in o['orderStatus']:
+                                    photo_url = o['orderStatus']['photos'][0]['fullUrl']
+                                else:
+                                    photo_url = ''
                                 if fecha_estado != '':
                                     # if r['_id'] == 44415196:
                                     #     fecha_estado_fmt = util.convert_to_ba_datetime(fecha_estado)
@@ -112,12 +115,14 @@ def main():
                                                 "fecha_plan": r['startDate'],
                                                 "fecha_estado": fecha_estado_fmt,
                                                 "estado": estado,
-                                                "direccion": address
+                                                "direccion": address,
+                                                "photo_url": photo_url
                                                 }
                                 if cuenta_id == None:
                                     print('SALTEADO NO RECONOCE CLIENTE')
                                 else:
                                     db.insertPlannedOrder(planned_order)
+                                    pass
                         
                         #print (f"Sin vehiculo: {op['code']} {op['date']} {op['poiId']} {pw['scheduledDate']} {poiData['name'] } {valkimia_entity_struct['client_id']}" )
                                 cantidad_ordenes += 1

@@ -99,7 +99,8 @@ class DB:
                             [pedido], [order_id], \
                             [fecha_estado], \
                             [estado],\
-                            [direccion]) \
+                            [direccion],\
+                            [photo_url]) \
                     VALUES ( GETDATE(), \
                             {op['cuenta_id']},\
                             '{op['client_id']}', \
@@ -110,7 +111,8 @@ class DB:
                             {op['order_id']},\
                             '{fecha_estado}',\
                             '{op['estado']}',\
-                            '{op['direccion']}')"
+                            '{op['direccion']}',\
+                            '{op['photo_url']}')"
         else:
             sentence=f"INSERT INTO Remito_PROD.dbo.quadmind_planned_orders ( \
                             [fecha_proceso], [cuenta_id], [client_id],\
