@@ -247,11 +247,18 @@ def main():
                     pois = handlePois( abr_cuenta, cuenta, cliente_codigo, cliente_nombre, calle_numero, localidad_nombre, cod_postal, provincia_nombre)
                     
                     cliente_codigo_anterior = abr_cuenta + cliente_codigo
+                    
+                # DMD Merchants ID 18444 debe estar en un array por empresa
                 order_payload = [{
                     "operation": "PEDIDO",
                     "poiId": pois['_id'],
                     "code": pedido,
                     "date": fechaFin,
+                    "merchants": [
+                    {
+                        "_id": 18444
+                    }
+                    ],
                     "orderItems": []
                 }]
                 orden_anterior = pedido
