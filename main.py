@@ -249,6 +249,14 @@ def main():
                     cliente_codigo_anterior = abr_cuenta + cliente_codigo
                     
                 # DMD Merchants ID 18444 debe estar en un array por empresa
+                if int(cuenta) == 12716: # DMD
+                    merchants_id = 18444
+                elif int(cuenta) == 18200: # DUGTRIO
+                    merchants_id = 18514
+                elif int(cuenta) == 18697: # AMANDE
+                    merchants_id = 18516
+                else:
+                    pass
                 order_payload = [{
                     "operation": "PEDIDO",
                     "poiId": pois['_id'],
@@ -256,7 +264,7 @@ def main():
                     "date": fechaFin,
                     "merchants": [
                     {
-                        "_id": 18444
+                        "_id": merchants_id
                     }
                     ],
                     "orderItems": []
