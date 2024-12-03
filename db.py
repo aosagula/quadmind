@@ -51,7 +51,7 @@ class DB:
                      where SEntEstEnt in ('PRE') \
                        and ArmIteCntC <> 0 \
                        and LogEntId not in (1032) \
-                       and LogEntId in ( 12716, 18200, 18697, 13781)\
+                       and LogEntId in ( 12716, 18200, 18697, 13781, 19322)\
                        and f.entid not in ( '13092', '14275', '14473' , '14328')\
                        and SentFecFin >= '2023-01-31' \
                        and (ententidc != '' or EntEntIdC is not null) \
