@@ -257,6 +257,8 @@ def main():
                     merchants_id = 18516
                 elif int(cuenta) == 13781: # AMANDE
                     merchants_id = 19132
+                elif int(cuenta) == 19322: # FUTURA
+                    merchants_id = 22490
                 else:
                     pass
                 order_payload = [{
